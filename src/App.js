@@ -5,12 +5,15 @@ function App() {
 
   useEffect(() => {
     (async function () {
-      const { text } = await( await fetch(`/api/message`)).json();
+      const { text } = await (await fetch(`/api/message`)).json();
       setData(text);
     })();
   });
 
-  return <div>{data}</div>;
+  return <div>
+    <div>Text from front end!</div>    
+    <div>{data}</div>
+  </div>;
 }
 
 export default App;
