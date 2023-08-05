@@ -14,7 +14,7 @@ namespace ReactAzureDemoApi.Function
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            var awaitable = await Task.Run<object>(() => new JsonResult(new {text="Hello world, I'm text served from a c# back end!"}));
+            var awaitable = await Task.Run<object>(() => new {text="Hello world, I'm text served from a c# back end!"});
             return new JsonResult(awaitable);
         }
     }
