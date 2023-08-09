@@ -5,5 +5,4 @@
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",
     "azureFunctions.preDeployTask": "publish (functions)",
-    "cmake.configureOnOpen": true
 }
