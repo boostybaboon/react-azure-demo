@@ -69,11 +69,12 @@ namespace ReactAzureDemoApi.Function
             catch (Exception ex)
             {
                 log.LogError($"Error doing graphql stuff: {ex.Message}");
+                
+                var awaitable = await Task.Run<object>(() => new { text = ex.Message });
+
+                return new JsonResult(awaitable);
             }
 
-            var awaitable = await Task.Run<object>(() => new { text = "Hello world, I'm text served from a c# back end!" });
-
-            return new JsonResult(awaitable);
         }
     }
 
