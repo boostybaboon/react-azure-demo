@@ -33,21 +33,42 @@ namespace ReactAzureDemoApi.Function
                 "
             };
 
-            string ep = $"{req.Scheme}://{req.Host}{req.PathBase}/data-api/graphql";
-
-            var graphQLHttpClientOptions = new GraphQLHttpClientOptions
+            try
             {
-                EndPoint = new Uri(ep)
-            };
+                string ep = $"{req.Scheme}://{req.Host}{req.PathBase}/data-api/graphql";
 
-            var httpClient = new HttpClient();
+                log.LogInformation($"end point: {ep}");
+                log.LogInformation($"from: Scheme {req.Scheme}, Host {req.Host}, PathBase {req.PathBase}");
 
-            var graphQLClient = new GraphQLHttpClient(graphQLHttpClientOptions, new SystemTextJsonSerializer(), httpClient);
-            //var graphQLClient = GraphApiConnection.Client(req);
-            var graphQLResponse = await graphQLClient.SendQueryAsync<PeopleResponse>(movieRequest);
+                var graphQLHttpClientOptions = new GraphQLHttpClientOptions
+                {
+                    EndPoint = new Uri(ep)
+                };
 
-            foreach (var item in graphQLResponse.Data.people.items)
-                Console.WriteLine("{0}: {1}", item.id, item.Name);
+                log.LogInformation($"made client options");
+
+                var httpClient = new HttpClient();
+
+                log.LogInformation($"made httpClient");
+
+                var graphQLClient = new GraphQLHttpClient(graphQLHttpClientOptions, new SystemTextJsonSerializer(), httpClient);
+
+                log.LogInformation($"made graphQLClient");
+
+                //var graphQLClient = GraphApiConnection.Client(req);
+
+                var graphQLResponse = await graphQLClient.SendQueryAsync<PeopleResponse>(movieRequest);
+
+                log.LogInformation($"got graphQLResponse");
+
+                foreach (var item in graphQLResponse.Data.people.items)
+                    log.LogInformation("{0}: {1}", item.id, item.Name);
+
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"Error doing graphql stuff: {ex.Message}");
+            }
 
             var awaitable = await Task.Run<object>(() => new { text = "Hello world, I'm text served from a c# back end!" });
 
