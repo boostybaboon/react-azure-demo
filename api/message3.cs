@@ -70,7 +70,9 @@ namespace ReactAzureDemoApi.Function
             {
                 log.LogError($"Error doing graphql stuff: {ex.Message}");
                 
-                var awaitable = await Task.Run<object>(() => new { text = ex.Message });
+                var awaitable = await Task.Run<object>(() => 
+                    new { text = ex.Message,
+                          dbConn = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")});
 
                 return new JsonResult(awaitable);
             }

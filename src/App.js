@@ -39,7 +39,7 @@ function App() {
 
     console.log(res);
 
-    console.table(res.data.people.items);
+    //console.table(res.data.people.items);
   }
 
   function nothing(){
