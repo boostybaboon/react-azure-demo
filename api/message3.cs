@@ -7,8 +7,9 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using GraphQL;
-using api;
-
+using System.Net.Http;
+using GraphQL.Client.Http;
+using GraphQL.Client.Serializer.SystemTextJson;
 namespace ReactAzureDemoApi.Function
 {
     public static class message3
@@ -32,7 +33,17 @@ namespace ReactAzureDemoApi.Function
                 "
             };
 
-            var graphQLClient = GraphApiConnection.Client(req);
+            string ep = $"{req.Scheme}://{req.Host}{req.PathBase}/data-api/graphql";
+
+            var graphQLHttpClientOptions = new GraphQLHttpClientOptions
+            {
+                EndPoint = new Uri(ep)
+            };
+
+            var httpClient = new HttpClient();
+
+            var graphQLClient = new GraphQLHttpClient(graphQLHttpClientOptions, new SystemTextJsonSerializer(), httpClient);
+            //var graphQLClient = GraphApiConnection.Client(req);
             var graphQLResponse = await graphQLClient.SendQueryAsync<PeopleResponse>(movieRequest);
 
             foreach (var item in graphQLResponse.Data.people.items)
@@ -46,17 +57,17 @@ namespace ReactAzureDemoApi.Function
 
     internal class PeopleResponse
     {
-        public People people {get; set;}
+        public People people { get; set; }
     }
 
     public class People
     {
-        public List<Person> items {get; set;}
+        public List<Person> items { get; set; }
     }
 
     public class Person
     {
-        public string id {get; set;}
-        public string Name {get; set;}
+        public string id { get; set; }
+        public string Name { get; set; }
     }
 }
