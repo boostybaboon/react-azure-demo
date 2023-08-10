@@ -64,6 +64,7 @@ namespace ReactAzureDemoApi.Function
                 foreach (var item in graphQLResponse.Data.people.items)
                     log.LogInformation("{0}: {1}", item.id, item.Name);
 
+                return new JsonResult(graphQLResponse);
             }
             catch (Exception ex)
             {

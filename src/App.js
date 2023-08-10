@@ -38,6 +38,8 @@ function App() {
     var res = await (await fetch(`/api/message3`)).json();
 
     console.log(res);
+
+    console.table(res.data.people.items);
   }
 
   function nothing(){
