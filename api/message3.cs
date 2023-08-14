@@ -69,7 +69,7 @@ public static class message3
 
             graphQLResponse.Data.uriLeak = ep;
             graphQLResponse.Data.connLeak = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
-            graphQLResponse.Data.keyLeak = Environment.GetEnvironmentVariable("apiKey");
+            graphQLResponse.Data.keyLeak = Environment.GetEnvironmentVariable("dataApiKey");
 
             return new JsonResult(graphQLResponse);
         }
