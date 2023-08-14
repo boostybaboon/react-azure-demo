@@ -26,10 +26,10 @@ public static class message3
                           items {
                             id
                               Name
-                            }
                           }
                         }
-                      "
+                      }
+                    "
         };
 
         try
