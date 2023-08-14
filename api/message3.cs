@@ -8,18 +8,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using GraphQL;
 
-
 namespace ReactAzureDemoApi.Function;
 
 public static class message3
 {
-    [FunctionName("message3")]
-    public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-        ILogger log)
-    {
-        var peopleRequest = new GraphQLRequest
-        {
+    private static readonly GraphQLRequest peopleRequest = new(){
             Query = @"
                       {
                         people {
@@ -32,21 +25,26 @@ public static class message3
                     "
         };
 
-        try
-        {
+    [FunctionName("message3")]
+    public static async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        ILogger log)
+    {
+        //try
+        //{
             var graphQLResponse = await GraphQlConnection.GraphQlClient.SendQueryAsync<PeopleResponse>(peopleRequest);
 
             return new JsonResult(graphQLResponse);
-        }
-        catch (Exception ex)
-        {
-            log.LogError($"Error doing graphql stuff: {ex.Message}");
-
-            var awaitable = await Task.Run<object>(() =>
-                new { text = ex.Message });
-
-            return new JsonResult(awaitable);
-        }
+        //}
+        //catch (Exception ex)
+        //{
+        //    log.LogError($"Error doing graphql stuff: {ex.Message}");
+        //
+        //    var awaitable = await Task.Run<object>(() =>
+        //        new { text = ex.Message });
+        //
+        //    return new JsonResult(awaitable);
+        //}
     }
 }
 
