@@ -32,12 +32,9 @@ function App() {
     console.table(result.data.people.items);
   }
 
-    async function list_from_api_using_graphql() {
-
+  async function list_from_api_using_graphql() {
 
     var res = await (await fetch(`/api/message3`)).json();
-
-    console.log(res);
 
     console.table(res.data.people.items);
   }
