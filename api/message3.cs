@@ -10,18 +10,19 @@ using GraphQL;
 using System.Net.Http;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.SystemTextJson;
-namespace ReactAzureDemoApi.Function
+
+namespace ReactAzureDemoApi.Function;
+
+public static class message3
 {
-    public static class message3
+    [FunctionName("message3")]
+    public static async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        ILogger log)
     {
-        [FunctionName("message3")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+        var movieRequest = new GraphQLRequest
         {
-            var movieRequest = new GraphQLRequest
-            {
-                Query = @"
+            Query = @"
                     {
                         people {
                             items {
@@ -31,68 +32,75 @@ namespace ReactAzureDemoApi.Function
                         }
                     }
                 "
+        };
+
+        try
+        {
+            string ep = $"{req.Scheme}://{req.Host}{req.PathBase}/data-api/graphql";
+
+            log.LogInformation($"end point: {ep}");
+            log.LogInformation($"from: Scheme {req.Scheme}, Host {req.Host}, PathBase {req.PathBase}");
+
+            var graphQLHttpClientOptions = new GraphQLHttpClientOptions
+            {
+                EndPoint = new Uri(ep)
             };
 
-            try
-            {
-                string ep = $"{req.Scheme}://{req.Host}{req.PathBase}/data-api/graphql";
+            log.LogInformation($"made client options");
 
-                log.LogInformation($"end point: {ep}");
-                log.LogInformation($"from: Scheme {req.Scheme}, Host {req.Host}, PathBase {req.PathBase}");
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("apiKey", Environment.GetEnvironmentVariable("apiKey"));
 
-                var graphQLHttpClientOptions = new GraphQLHttpClientOptions
-                {
-                    EndPoint = new Uri(ep)
-                };
+            log.LogInformation($"made httpClient");
 
-                log.LogInformation($"made client options");
+            var graphQLClient = new GraphQLHttpClient(graphQLHttpClientOptions, new SystemTextJsonSerializer(), httpClient);
 
-                var httpClient = new HttpClient();
+            log.LogInformation($"made graphQLClient");
 
-                log.LogInformation($"made httpClient");
+            //var graphQLClient = GraphApiConnection.Client(req);
 
-                var graphQLClient = new GraphQLHttpClient(graphQLHttpClientOptions, new SystemTextJsonSerializer(), httpClient);
+            var graphQLResponse = await graphQLClient.SendQueryAsync<PeopleResponse>(movieRequest);
 
-                log.LogInformation($"made graphQLClient");
+            log.LogInformation($"got graphQLResponse");
 
-                //var graphQLClient = GraphApiConnection.Client(req);
+            foreach (var item in graphQLResponse.Data.people.items)
+                log.LogInformation("{0}: {1}", item.id, item.Name);
 
-                var graphQLResponse = await graphQLClient.SendQueryAsync<PeopleResponse>(movieRequest);
+            graphQLResponse.Data.uriLeak = ep;
+            graphQLResponse.Data.connLeak = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING");
+            graphQLResponse.Data.keyLeak = Environment.GetEnvironmentVariable("apiKey");
 
-                log.LogInformation($"got graphQLResponse");
-
-                foreach (var item in graphQLResponse.Data.people.items)
-                    log.LogInformation("{0}: {1}", item.id, item.Name);
-
-                return new JsonResult(graphQLResponse);
-            }
-            catch (Exception ex)
-            {
-                log.LogError($"Error doing graphql stuff: {ex.Message}");
-                
-                var awaitable = await Task.Run<object>(() => 
-                    new { text = ex.Message,
-                          dbConn = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")});
-
-                return new JsonResult(awaitable);
-            }
-
+            return new JsonResult(graphQLResponse);
         }
-    }
+        catch (Exception ex)
+        {
+            log.LogError($"Error doing graphql stuff: {ex.Message}");
+            
+            var awaitable = await Task.Run<object>(() => 
+                new { text = ex.Message,
+                      dbConn = Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")});
 
-    internal class PeopleResponse
-    {
-        public People people { get; set; }
-    }
+            return new JsonResult(awaitable);
+        }
 
-    public class People
-    {
-        public List<Person> items { get; set; }
     }
+}
 
-    public class Person
-    {
-        public string id { get; set; }
-        public string Name { get; set; }
-    }
+internal class PeopleResponse
+{
+    public People people { get; set; }
+    public string uriLeak { get; set; }
+    public string connLeak { get; set; }
+    public string keyLeak { get; set; }
+}
+
+public class People
+{
+    public List<Person> items { get; set; }
+}
+
+public class Person
+{
+    public string id { get; set; }
+    public string Name { get; set; }
 }
