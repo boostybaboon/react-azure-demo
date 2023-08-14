@@ -36,7 +36,8 @@ public static class message3
 
         try
         {
-            string ep = $"{req.Scheme}://{req.Host}{req.PathBase}/data-api/graphql";
+            //string ep = $"{req.Scheme}://{req.Host}{req.PathBase}/data-api/graphql";
+            string ep = Environment.GetEnvironmentVariable("dataApiEndpoint");
 
             log.LogInformation($"end point: {ep}");
             log.LogInformation($"from: Scheme {req.Scheme}, Host {req.Host}, PathBase {req.PathBase}");
@@ -49,7 +50,7 @@ public static class message3
             log.LogInformation($"made client options");
 
             var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("apiKey", Environment.GetEnvironmentVariable("apiKey"));
+            httpClient.DefaultRequestHeaders.Add("apiKey", Environment.GetEnvironmentVariable("dataApiKey"));
 
             log.LogInformation($"made httpClient");
 
